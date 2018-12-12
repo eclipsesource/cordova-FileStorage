@@ -1,5 +1,6 @@
 package com.dfranzen.cordova;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileNotFoundException;
