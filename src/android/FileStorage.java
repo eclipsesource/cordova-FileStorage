@@ -48,7 +48,10 @@ public class FileStorage extends CordovaPlugin {
     public static final int MANAGE_REQ = 3;
     
     public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
-    public static final int RESULT_OK = Activity.RESULT_OK;
+	public static final int RESULT_OK = Activity.RESULT_OK;
+	
+	private CallbackContext mCallbackContext;
+	private Uri mUri;
 	
     CallbackContext callback;
 
@@ -128,8 +131,9 @@ public class FileStorage extends CordovaPlugin {
     public void readFromUri(CallbackContext callbackContext, Uri uri) {
 	try {
 	    if (!cordova.hasPermission(READ_PERM)) {
+		mCallbackContext = callbackContext;
+		mUri = uri;
 		cordova.requestPermission(this,READ_REQ,READ_PERM);
-		callbackContext.error("Permission _READ_EXTERNAL_STORAGE_ has been requested");
 	    } else {
 		ContentResolver contentResolver = cordova.getActivity().getContentResolver();
 		InputStream inStream = contentResolver.openInputStream(uri);
@@ -202,5 +206,22 @@ public class FileStorage extends CordovaPlugin {
         if (requestCode == PICK_FILE_REQUEST) {
 	    callback.success(uri.toString());
         }
-    }
+	}
+	
+	@Override
+	public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults)
+			throws JSONException {
+		if (mCallbackContext == null || mUri == null) {
+			return;
+		}
+		for (int result : grantResults) {
+			if (result == PackageManager.PERMISSION_DENIED) {
+				mCallbackContext.error("Permission denied");
+				return;
+			}
+		}
+		if (requestCode == READ_REQ) {
+			readFromUri(mCallbackContext, mUri);
+		}
+	}
 }
