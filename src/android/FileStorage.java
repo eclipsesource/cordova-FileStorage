@@ -192,7 +192,7 @@ public class FileStorage extends CordovaPlugin {
 	}
 
 	if (resultCode != RESULT_OK) {
-	    callback.error(resultCode);
+	    callback.error(resultCode == RESULT_CANCELED ? "Cancel" : "resultCode:  " + resultCode);
 	    return; 
 	}
 	
