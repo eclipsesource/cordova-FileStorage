@@ -232,7 +232,7 @@ public class FileStorage extends CordovaPlugin {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("uri", uri);
-			jsonObject.put("mimeType", getContentResolver().getType(uri));
+			jsonObject.put("mimeType", cordova.getActivity().getContentResolver().getType(uri));
 		} catch (JSONException exception) {
 			callback.error(exception.getMessage());
 		}
