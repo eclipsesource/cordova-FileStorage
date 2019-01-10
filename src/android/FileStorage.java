@@ -165,13 +165,13 @@ public class FileStorage extends CordovaPlugin {
 	
 	Intent dropboxIntent = new Intent(Intent.ACTION_GET_CONTENT);
 	dropboxIntent.setPackage("com.dropbox.android");
-	pickIntent.setType("*/*");
-    pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+	dropboxIntent.setType("*/*");
+    dropboxIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 	dropboxIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
 	Intent documentIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT); //ACTION_CREATE_DOCUMENT);  //ACTION_OPEN_DOCUMENT  //ACTION_GET_CONTENT
-	pickIntent.setType("*/*");
-    pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+	documentIntent.setType("*/*");
+    documentIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
     documentIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	
 	Intent chooserIntent = Intent.createChooser(pickIntent, "Select a file to add");
@@ -233,10 +233,10 @@ public class FileStorage extends CordovaPlugin {
 		try {
 			jsonObject.put("uri", uri);
 			jsonObject.put("mimeType", cordova.getActivity().getContentResolver().getType(uri));
+			callback.success(jsonObject);
 		} catch (JSONException exception) {
 			callback.error(exception.getMessage());
 		}
-		callback.success(uri.toString());
 	}
 
 }
