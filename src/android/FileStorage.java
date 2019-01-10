@@ -23,13 +23,12 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
-
+import org.json.JSONObject;
 
 public class FileStorage extends CordovaPlugin {
 
@@ -158,28 +157,32 @@ public class FileStorage extends CordovaPlugin {
     }
     
     public void chooseFile(CallbackContext callbackContext) {
+	String[] mimeTypes = { "application/pdf", "image/jpeg", "image/png" };
 	Intent pickIntent = new Intent(Intent.ACTION_PICK);
-	pickIntent.setType("application/pdf");
+	pickIntent.setType("*/*");
+    pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 	pickIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	
 	Intent dropboxIntent = new Intent(Intent.ACTION_GET_CONTENT);
 	dropboxIntent.setPackage("com.dropbox.android");
-	dropboxIntent.setType("application/pdf");
+	pickIntent.setType("*/*");
+    pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 	dropboxIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
 	Intent documentIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT); //ACTION_CREATE_DOCUMENT);  //ACTION_OPEN_DOCUMENT  //ACTION_GET_CONTENT
-	documentIntent.setType("application/pdf");
-        documentIntent.addCategory(Intent.CATEGORY_OPENABLE);
+	pickIntent.setType("*/*");
+    pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+    documentIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	
 	Intent chooserIntent = Intent.createChooser(pickIntent, "Select a file to add");
 	chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{documentIntent, dropboxIntent});
 	
 	cordova.startActivityForResult(this, chooserIntent, PICK_FILE_REQUEST);
 
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-        pluginResult.setKeepCallback(true);
-        callback = callbackContext;
-        callbackContext.sendPluginResult(pluginResult);
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+    pluginResult.setKeepCallback(true);
+    callback = callbackContext;
+    callbackContext.sendPluginResult(pluginResult);
     }
 
     @Override
@@ -203,9 +206,9 @@ public class FileStorage extends CordovaPlugin {
 	    context.getContentResolver().takePersistableUriPermission(uri, takeFlags);
 	}
 
-        if (requestCode == PICK_FILE_REQUEST) {
-	    callback.success(uri.toString());
-        }
+    if (requestCode == PICK_FILE_REQUEST) {
+		completeFilePickRequest(uri);
+    }
 	}
 	
 	@Override
@@ -224,4 +227,16 @@ public class FileStorage extends CordovaPlugin {
 			readFromUri(mCallbackContext, mUri);
 		}
 	}
+
+	private void completeFilePickRequest(Uri uri) {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject.put("uri", uri);
+			jsonObject.put("mimeType", getContentResolver().getType(uri));
+		} catch (JSONException exception) {
+			callback.error(exception.getMessage());
+		}
+		callback.success(uri.toString());
+	}
+
 }
