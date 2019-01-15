@@ -158,19 +158,20 @@ public class FileStorage extends CordovaPlugin {
     
     public void chooseFile(CallbackContext callbackContext) {
 	String[] mimeTypes = { "application/pdf", "image/jpeg", "image/png" };
+	String type = "image/*|application/pdf";
 	Intent pickIntent = new Intent(Intent.ACTION_PICK);
-	pickIntent.setType("*/*");
+	pickIntent.setType(type);
     pickIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 	pickIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	
 	Intent dropboxIntent = new Intent(Intent.ACTION_GET_CONTENT);
 	dropboxIntent.setPackage("com.dropbox.android");
-	dropboxIntent.setType("*/*");
+	dropboxIntent.setType(type);
     dropboxIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 	dropboxIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
 	Intent documentIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT); //ACTION_CREATE_DOCUMENT);  //ACTION_OPEN_DOCUMENT  //ACTION_GET_CONTENT
-	documentIntent.setType("*/*");
+	documentIntent.setType(type);
     documentIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
     documentIntent.addCategory(Intent.CATEGORY_OPENABLE);
 	
@@ -190,10 +191,12 @@ public class FileStorage extends CordovaPlugin {
 	if (callback == null) {
 	    return;
 	}
-
 	if (resultCode != RESULT_OK) {
 	    callback.error(resultCode == RESULT_CANCELED ? "canceled" : "resultCode:  " + resultCode);
 	    return; 
+	}
+	if (data == null) {
+		return;
 	}
 	
 	Uri uri = data.getData();
